@@ -2,20 +2,28 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-@app.route("/", methods = ["POST"])
-def hello_world():
+total = 0
+
+@app.route("/", methods = ["GET","POST"])
+def donation_occured():
+
+    global total
+
     if(request.method == "GET"):
+        return f"{total}"
+    
 
-        #KEEP THIS IN MIND FOR SMS VS APP TRANSACTIONS
-        print(f"FUCK YEA {request.base_url}")
-        return "<p>Hi Josh :)</p>"
     elif(request.method == "POST"):
+        
+        if(type(request.json["donationAmount"]) is int ):
+            print(f"request data: {request.json}")
+            total += request.json["donationAmount"]
+        else:
+            print("SHHSH")
 
-        print(f"POSTIN TIME {request.base_url}")
-        print(f"request data: {request.values["test"]}")
-        return "<p>POST</p>"
+        return ""
     else:
-        return "<p>Hello, World!</p>"
+        return "<p>Got through the great firewall</p>"
 
 
 @app.route("/DEV_ONLY")
