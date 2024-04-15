@@ -41,9 +41,6 @@ def donation_occured():
 
         return f"{display_string}"
     
-    else:
-        return "<p>Got through the great firewall</p>"
-    
 @app.route("/detailed-report", methods = ["GET"])
 def display_donations():
     
@@ -54,6 +51,7 @@ def display_donations():
     donation_table = get_donation_table(id)
 
     return  f"<div> Donation information for User {id} <div>" + donation_table + id_button
+
 
 def submit_query(query):
     global conn
@@ -73,12 +71,12 @@ def get_donation_table(id):
     
     hdr = '''<table>
                         <tr>
-                        <th>Donation Amount</th>
-                        <th>Donation Time</th>
+                        <th>Amount</th>
+                        <th>Time</th>
                         </tr>'''
     rows = ""
     tail = '</table>'
-    result = submit_query(f"SELECT donation_amount, donation_time FROM donators WHERE user_id = {id}")
+    result = submit_query(f"SELECT donation_amount, donation_time FROM donators WHERE user_id = {id} ORDER BY donation_time")
 
     for (donation_amount, donation_time) in result:
             rows += f'''<tr>
@@ -93,7 +91,7 @@ def get_id_button(id):
     hdr = '''<form action="/detailed-report" method="get">
                 <select name="id">'''
     
-    options = f"<option value={id} selected disabled hidden >{id}</option>"
+    options = ""
 
     tail = '''</select>
                     <input type="submit" value="Filter" />
@@ -102,6 +100,9 @@ def get_id_button(id):
     result = submit_query("SELECT DISTINCT user_id FROM donators ORDER BY user_id")
 
     for (user_id,) in result:
-        options += f"<option value={user_id}>{user_id}</option>"
+        if(int(user_id) != int(id)):
+            options += f"<option value={user_id}>{user_id}</option>"
+        else:
+            options += f"<option value={user_id} selected >{user_id}</option>"
 
     return hdr + options + tail
