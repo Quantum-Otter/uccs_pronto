@@ -1,16 +1,18 @@
 from flask import Flask, request
-import mysql.connector;
+from flask_mysqldb import MySQL 
 import os;
 
 
 app = Flask(__name__)
 
-conn = mysql.connector.MySQLConnection(
-    user = "root",
-    password = os.getenv('MySqlPassword'),
-    database="uccs_pronto"
-    )
-conn.autocommit = False
+mysql = MySQL()
+app.config['MYSQL_USER'] = "root"
+app.config['MYSQL_PASSWORD'] = os.getenv("MySqlPassword")
+app.config['MYSQL_DB'] = "uccs_pronto"
+app.config['MYSQL_HOST'] = "localhost"
+
+
+mysql.init_app(app)
 
 @app.route("/", methods = ["GET","POST"])
 def donation_occured():
@@ -54,14 +56,13 @@ def display_donations():
 
 
 def submit_query(query):
-    global conn
+    
+    cur = mysql.connection.cursor()
 
-    cur = conn.cursor()
     cur.execute(query)
 
     result = cur.fetchall()
 
-    conn.commit()
     cur.close()
 
     return result
